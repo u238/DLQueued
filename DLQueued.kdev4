@@ -1,0 +1,4 @@
+[Project]
+Name=DLQueued
+Manager=KDevCustomMakeManager
+VersionControl=kdevgit
