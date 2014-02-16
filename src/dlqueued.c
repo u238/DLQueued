@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <pthread.h>
 #include <curl/curl.h>
  
@@ -41,6 +42,33 @@ static void *pull_one_url(void *url)
  
 int main(int argc, char **argv)
 {
+  int numt = 0, fflag = 0;
+  char * filename;
+  int c;
+  
+  extern char *optarg;
+  //extern int optind;
+  //opterr = 0;
+  
+  while ((c = getopt(argc, argv, "t:f:")) != -1)
+    switch (c)
+    {
+      case 't':
+	numt = optarg;
+	break;
+      case 'f':
+	fflag = 1;
+	filename = optarg;
+	break;
+      default:
+	abort();
+    }
+    
+  if (fflag == 0) {
+    fprintf(stderr, "%s: missing -f option\n", argv[0]);
+    
+  }
+  
   pthread_t tid[NUMT];
   int i;
   int error;
