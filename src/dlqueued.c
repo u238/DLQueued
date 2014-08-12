@@ -3,10 +3,13 @@
 #include <unistd.h>
 #include <pthread.h>
 #include <curl/curl.h>
- 
-#include "commint.h"
+
+#include "config.h"
+#include "log.h"
+#include "dlpart.h"
  
 #define NUMT 4
+
  
 /*
   List of URLs to fetch.
@@ -42,7 +45,7 @@ static void *pull_one_url(void *url)
    const pthread_attr_t *attr,
    void * (*start_func)(void *), void *arg);
 */ 
- 
+
 int main(int argc, char **argv)
 {
   int numt = 0, fflag = 0;
@@ -68,15 +71,23 @@ int main(int argc, char **argv)
     }
     
   if (fflag == 0) {
-    fprintf(stderr, "%s: missing -f option\n", argv[0]);
+    printlogf("[-] %s: missing -f option\n", argv[0]);
     
   }
   
+  printlogf("[i] creating dlset download\n");
   
+  char name[] = "Test Film";
+  struct DLset * dlset = new_dlset(name, filename);
   
-//   pthread_t tid[NUMT];
-//   int i;
-//   int error;
+  printlogf("[i] printing dlset\n");
+  
+  dlset_toString(dlset);
+  exit(0);
+  
+   pthread_t tid[NUMT];
+   int i;
+   int error;
  
   
   
@@ -85,25 +96,25 @@ int main(int argc, char **argv)
   
   
   
-//   // Must initialize libcurl before any threads are started
-//   curl_global_init(CURL_GLOBAL_ALL);
-//   
-//   for(i=0; i< NUMT; i++) {
-//     error = pthread_create(&tid[i],
-// 			   NULL, // default attributes please 
-// 			   pull_one_url,
-// 			   (void *)urls[i]);
-//     if(0 != error)
-//       fprintf(stderr, "Couldn't run thread number %d, errno %d\n", i, error);
-//     else
-//       fprintf(stderr, "Thread %d, gets %s\n", i, urls[i]);
-//   }
-//   
-//   /* now wait for all threads to terminate */ 
-//   for(i=0; i< NUMT; i++) {
-//     error = pthread_join(tid[i], NULL);
-//     fprintf(stderr, "Thread %d terminated\n", i);
-//   }
+  // Must initialize libcurl before any threads are started
+  curl_global_init(CURL_GLOBAL_ALL);
+  
+  for(i=0; i< NUMT; i++) {
+    error = pthread_create(&tid[i],
+			   NULL, // default attributes please 
+			   pull_one_url,
+			   (void *)urls[i]);
+    if(0 != error)
+      fprintf(stderr, "Couldn't run thread number %d, errno %d\n", i, error);
+    else
+      fprintf(stderr, "Thread %d, gets %s\n", i, urls[i]);
+  }
+  
+  /* now wait for all threads to terminate */ 
+  for(i=0; i< NUMT; i++) {
+    error = pthread_join(tid[i], NULL);
+    fprintf(stderr, "Thread %d terminated\n", i);
+  }
   
  
   return 0;
